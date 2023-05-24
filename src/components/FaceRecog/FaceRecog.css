@@ -1,0 +1,29 @@
+.bounding-box {
+  position: absolute;
+  box-shadow: 0 0 0 3px #149df2 inset;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.prob {
+  font-size: small;
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: none;
+  width: 20%;
+  height: 10%;
+  background-color: rgba(138, 156, 216, 0.8);
+  color: #fff;
+  padding: 5px;
+  box-sizing: border-box;
+  opacity: 0;
+  transition: all 1s ease;
+}
+
+.elementContainer:hover .prob {
+  display: block;
+  opacity: 1;
+}
