@@ -8,6 +8,8 @@ import { Component } from "react";
 import Clarifai from "clarifai";
 import FaceRecognition from "./components/FaceRecog/FaceRecog";
 import clarifai_api_key from "./calrifai";
+import SignIn from "./components/SignIn/SignIn";
+import Register from "./Register/Register";
 window.process = {};
 
 const app = new Clarifai.App({
@@ -21,6 +23,8 @@ class App extends Component {
       input: "",
       ImgUrl: "",
       box: [],
+      route: "signin",
+      isSignedIn: false,
     };
   }
 
@@ -77,18 +81,38 @@ class App extends Component {
       );
   };
 
+  onRouteChange = (route) => {
+    if (route === "nein") {
+      this.setState({ isSignedIn: true });
+    } else {
+      this.setState({ isSignedIn: false });
+    }
+    this.setState({ route: route });
+  };
+
   render() {
     return (
       <div className="App">
         <ParticlesBg type="color" bg={true} />
-        <Navigation />
-        <Rank />
-        <Logo width={"30vw"} />
-        <ImageLink
-          onInputChange={this.onInputChange}
-          onSubmit={this.onSubmit}
+        <Navigation
+          isSignedIn={this.state.isSignedIn}
+          onRouteChange={this.onRouteChange}
         />
-        <FaceRecognition box={this.state.box} ImgUrl={this.state.ImgUrl} />
+        {this.state.route === "signin" ? (
+          <SignIn onRouteChange={this.onRouteChange} />
+        ) : this.state.route === "nein" ? (
+          <div>
+            <Rank />
+            <Logo width={"30vw"} />
+            <ImageLink
+              onInputChange={this.onInputChange}
+              onSubmit={this.onSubmit}
+            />
+            <FaceRecognition box={this.state.box} ImgUrl={this.state.ImgUrl} />
+          </div>
+        ) : (
+          <Register onRouteChange={this.onRouteChange} />
+        )}
       </div>
     );
   }
