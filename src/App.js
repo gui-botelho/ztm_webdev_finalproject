@@ -25,9 +25,33 @@ class App extends Component {
       box: [],
       route: "signin",
       isSignedIn: false,
+      user: {
+        id: "",
+        email: "",
+        name: "",
+        entries: "",
+        joined: "",
+      },
     };
   }
 
+  loadUser = (userInfo) => {
+    this.setState({
+      user: {
+        id: userInfo.id,
+        email: userInfo.email,
+        name: userInfo.name,
+        entries: userInfo.entries,
+        joined: userInfo.joined,
+      },
+    });
+  };
+
+  componentDidMount() {
+    fetch("http://localhost:3000")
+      .then((response) => response.json())
+      .then(console.log);
+  }
   locateFace = (data) => {
     let faces_found = [];
     for (let face = 0; face < data.outputs[0].data.regions.length; face++) {
@@ -72,6 +96,21 @@ class App extends Component {
       )
       .then(
         (response) => {
+          if (response) {
+            fetch("http://localhost:3000/image", {
+              method: "put",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                id: this.state.user.id,
+              }),
+            })
+              .then((response) => response.json())
+              .then((count) => {
+                this.setState(
+                  Object.assign(this.state.user, { entries: count })
+                );
+              });
+          }
           this.displayFaceBox(this.locateFace(response));
           console.log(response);
         },
@@ -93,16 +132,19 @@ class App extends Component {
   render() {
     return (
       <div className="App">
-        <ParticlesBg type="color" bg={true} />
+        <ParticlesBg type="fountain" bg={true} config={{ v: 0.1 }} />
         <Navigation
           isSignedIn={this.state.isSignedIn}
           onRouteChange={this.onRouteChange}
         />
         {this.state.route === "signin" ? (
-          <SignIn onRouteChange={this.onRouteChange} />
+          <SignIn loadUser={this.loadUser} onRouteChange={this.onRouteChange} />
         ) : this.state.route === "nein" ? (
           <div>
-            <Rank />
+            <Rank
+              userName={this.state.user.name}
+              userEntries={this.state.user.entries}
+            />
             <Logo width={"30vw"} />
             <ImageLink
               onInputChange={this.onInputChange}
@@ -111,7 +153,10 @@ class App extends Component {
             <FaceRecognition box={this.state.box} ImgUrl={this.state.ImgUrl} />
           </div>
         ) : (
-          <Register onRouteChange={this.onRouteChange} />
+          <Register
+            loadUser={this.loadUser}
+            onRouteChange={this.onRouteChange}
+          />
         )}
       </div>
     );
